@@ -1,21 +1,18 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useDispatch } from 'react-redux';
 import { login } from '../features/authSlice';
 import { useNavigate } from 'react-router-dom';
 import { Input, Button, message, Card, Form } from 'antd';
 import { loginUser } from '../api/auth';
-import '../styles/LoginPage.scss';  // 导入样式文件
+import '../styles/LoginPage.scss';  // 确保样式文件正确导入
 
 const LoginPage: React.FC = () => {
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    const handleLogin = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleLogin = async (values: { username: string; password: string }) => {
         try {
-            const data = await loginUser(username, password);
+            const data = await loginUser(values.username, values.password);
             dispatch(login(data.access));
             navigate('/home');
         } catch (error) {
@@ -32,21 +29,23 @@ const LoginPage: React.FC = () => {
             <Card className="login-card">
                 <h2 className="login-title">Login</h2>
                 <Form onFinish={handleLogin}>
-                    <Form.Item>
+                    <Form.Item
+                        name="username"
+                        rules={[{ required: true, message: 'Please input your username!' }]}
+                    >
                         <Input
                             type="text"
                             placeholder="Enter your username"
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
                             autoComplete="off"  // 去掉自动填充
                         />
                     </Form.Item>
-                    <Form.Item>
+                    <Form.Item
+                        name="password"
+                        rules={[{ required: true, message: 'Please input your password!' }]}
+                    >
                         <Input
                             type="password"
                             placeholder="Enter your password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
                             autoComplete="off"  // 去掉自动填充
                         />
                     </Form.Item>

@@ -670,3 +670,422 @@ my_django_react_app/
 ### 总结
 
 以上是完整的 Django 和 React 项目搭建指南，包含了 `drf-yasg` 的配置和测试用例的使用说明。确保按照步骤配置，运行应用并进行测试。如果有任何问题，请随时询问！
+
+### 1. 创建注册视图
+
+在 `myapp/views.py` 中，添加一个注册视图来处理用户注册请求：
+
+python
+
+**Copy**
+
+```
+from django.contrib.auth.models import User
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework import serializers
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['username', 'password', 'email']
+        extra_kwargs = {'password': {'write_only': True}}
+
+    def create(self, validated_data):
+        user = User(**validated_data)
+        user.set_password(validated_data['password'])
+        user.save()
+        return user
+
+@api_view(['POST'])
+def register_view(request):
+    serializer = UserSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response({'message': 'User registered successfully!'}, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+```
+
+### 2. 配置 URL 路由
+
+在 `myapp/urls.py` 中，添加注册视图的 URL 路由：
+
+python
+
+**Copy**
+
+```
+from django.urls import path
+from .views import login_view, home_view, register_view
+
+urlpatterns = [
+    path('login/', login_view, name='login'),
+    path('home/', home_view, name='home'),
+    path('register/', register_view, name='register'),  # 添加注册路由
+]
+```
+
+### 3. 更新前端代码
+
+在前端应用中，创建一个注册页面并处理用户注册请求。
+
+#### 3.1 创建注册组件
+
+在 `src/components/` 目录中创建 `RegisterPage.tsx` 文件，内容如下：
+
+typescript
+
+**Copy**
+
+```
+import React, { useState } from 'react';
+import { Input, Button, message } from 'antd';
+import axios from 'axios';
+
+const RegisterPage: React.FC = () => {
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+    const [email, setEmail] = useState('');
+
+    const handleRegister = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            const response = await axios.post('http://localhost:8000/api/register/', {
+                username,
+                password,
+                email,
+            });
+            message.success(response.data.message);
+            // 这里可以添加导航到登录页面的逻辑
+        } catch (error) {
+            message.error('Registration failed. Please check your details.');
+        }
+    };
+
+    return (
+        <div style={{ padding: '20px' }}>
+            <h2>Register</h2>
+            <form onSubmit={handleRegister}>
+                <Input
+                    type="text"
+                    placeholder="Username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    style={{ marginBottom: '10px' }}
+                />
+                <Input
+                    type="email"
+                    placeholder="Email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    style={{ marginBottom: '10px' }}
+                />
+                <Input
+                    type="password"
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    style={{ marginBottom: '10px' }}
+                />
+                <Button type="primary" htmlType="submit">Register</Button>
+            </form>
+        </div>
+    );
+};
+
+export default RegisterPage;
+```
+
+#### 3.2 更新路由配置
+
+在 `src/App.tsx` 中添加注册页面的路由：
+
+typescript
+
+**Copy**
+
+```
+import RegisterPage from './components/RegisterPage';
+
+// 在 Routes 中添加
+<Route path="/register" element={<RegisterPage />} />
+```
+
+### 4
+
+### 1. 创建注册视图
+
+在 `myapp/views.py` 中，添加一个注册视图来处理用户注册请求：
+
+python
+
+**Copy**
+
+```
+from django.contrib.auth.models import User
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework import serializers
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['username', 'password', 'email']
+        extra_kwargs = {'password': {'write_only': True}}
+
+    def create(self, validated_data):
+        user = User(**validated_data)
+        user.set_password(validated_data['password'])
+        user.save()
+        return user
+
+@api_view(['POST'])
+def register_view(request):
+    serializer = UserSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response({'message': 'User registered successfully!'}, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+```
+
+### 2. 配置 URL 路由
+
+在 `myapp/urls.py` 中，添加注册视图的 URL 路由：
+
+python
+
+**Copy**
+
+```
+from django.urls import path
+from .views import login_view, home_view, register_view
+
+urlpatterns = [
+    path('login/', login_view, name='login'),
+    path('home/', home_view, name='home'),
+    path('register/', register_view, name='register'),  # 添加注册路由
+]
+```
+
+### 3. 更新前端代码
+
+在前端应用中，创建一个注册页面并处理用户注册请求。
+
+#### 3.1 创建注册组件
+
+在 `src/components/` 目录中创建 `RegisterPage.tsx` 文件，内容如下：
+
+typescript
+
+**Copy**
+
+```
+import React, { useState } from 'react';
+import { Input, Button, message } from 'antd';
+import axios from 'axios';
+
+const RegisterPage: React.FC = () => {
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+    const [email, setEmail] = useState('');
+
+    const handleRegister = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            const response = await axios.post('http://localhost:8000/api/register/', {
+                username,
+                password,
+                email,
+            });
+            message.success(response.data.message);
+            // 这里可以添加导航到登录页面的逻辑
+        } catch (error) {
+            message.error('Registration failed. Please check your details.');
+        }
+    };
+
+    return (
+        <div style={{ padding: '20px' }}>
+            <h2>Register</h2>
+            <form onSubmit={handleRegister}>
+                <Input
+                    type="text"
+                    placeholder="Username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    style={{ marginBottom: '10px' }}
+                />
+                <Input
+                    type="email"
+                    placeholder="Email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    style={{ marginBottom: '10px' }}
+                />
+                <Input
+                    type="password"
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    style={{ marginBottom: '10px' }}
+                />
+                <Button type="primary" htmlType="submit">Register</Button>
+            </form>
+        </div>
+    );
+};
+
+export default RegisterPage;
+```
+
+#### 3.2 更新路由配置
+
+在 `src/App.tsx` 中添加注册页面的路由：
+
+typescript
+
+**Copy**
+
+```
+import RegisterPage from './components/RegisterPage';
+
+// 在 Routes 中添加
+<Route path="/register" element={<RegisterPage />} />
+```
+
+# 
+
+### 1. 安装 Sass
+
+首先，确保你的项目中安装了 Sass。可以使用以下命令：
+
+bash
+
+**Copy**
+
+```
+npm install sass
+```
+
+### 2. 创建 Sass 文件
+
+在 `src/styles/` 目录中创建一个 `LoginPage.scss` 文件，并添加以下样式：
+
+scss
+
+**Copy**
+
+```
+// src/styles/LoginPage.scss
+
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f0f2f5;
+}
+
+.login-card {
+    width: 400px;
+    padding: 20px;
+}
+
+.login-title {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.login-button {
+    width: 100%;
+}
+```
+
+
+### 3. 更新 `LoginPage.tsx`
+
+在 `LoginPage.tsx` 中，导入 Sass 文件并使用相应的类名：
+
+typescript
+
+**Copy**
+
+```
+import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { login } from '../features/authSlice';
+import { useNavigate } from 'react-router-dom';
+import { Input, Button, message, Card, Form } from 'antd';
+import { loginUser } from '../api/auth';
+import './styles/LoginPage.scss';  // 导入样式文件
+
+const LoginPage: React.FC = () => {
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+
+    const handleLogin = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            const data = await loginUser(username, password);
+            dispatch(login(data.access));
+            navigate('/home');
+        } catch (error) {
+            message.error('Login failed. Please check your credentials.');
+        }
+    };
+
+    const handleRegister = () => {
+        navigate('/register');
+    };
+
+    return (
+        <div className="login-container">
+            <Card className="login-card">
+                <h2 className="login-title">Login</h2>
+                <Form onFinish={handleLogin}>
+                    <Form.Item>
+                        <Input
+                            type="text"
+                            placeholder="Enter your username"
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
+                            autoComplete="off"  // 去掉自动填充
+                        />
+                    </Form.Item>
+                    <Form.Item>
+                        <Input
+                            type="password"
+                            placeholder="Enter your password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            autoComplete="off"  // 去掉自动填充
+                        />
+                    </Form.Item>
+                    <Form.Item>
+                        <Button type="primary" htmlType="submit" block>
+                            Login
+                        </Button>
+                    </Form.Item>
+                    <Form.Item>
+                        <Button type="link" onClick={handleRegister} className="login-button">
+                            Register
+                        </Button>
+                    </Form.Item>
+                </Form>
+            </Card>
+        </div>
+    );
+};
+
+export default LoginPage;
+```
+
+### 4. 解释修改内容
+
+* **Sass 文件**：将所有样式移到 `LoginPage.scss` 文件中，使用类名来定义样式。
+* **导入样式**：在 `LoginPage.tsx` 中导入 Sass 文件，确保样式生效。
+* **类名使用**：替换内联样式为 Sass 定义的类名，使代码结构更加清晰。
